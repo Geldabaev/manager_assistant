@@ -52,11 +52,6 @@ class CreatingCsv:
                 )
 
     def create_stat_df(self, date, names, group, encouragement, reprimand):
-        print(len(date))
-        print(len(names))
-        print(len(group))
-        print(len(encouragement))
-        print(len(reprimand))
         "Для ввода статистики"
         df = pd.DataFrame({
                       "date": date,

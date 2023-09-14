@@ -146,7 +146,6 @@ async def ready_to_write_statistics(msg: types.callback_query):
             в другом документе за пропуски 0, на графие пропус должно быть -1
             
             """
-            print(list(dicts.keys())[0], "?????????????????????????")
 
             names_list.append(list(dicts.keys())[0])
             match list(dicts.values())[0]:
@@ -159,28 +158,6 @@ async def ready_to_write_statistics(msg: types.callback_query):
 
             date_list.append(date)
             names_groups.append(group_name)
-            print(date_list)
-            print(names_list)
-            print(names_groups)
-            print(mark_plus)
-            print(mark_minis)
-            print("****************")
-
-
-            # if isinstance(b['text'], int | float):
-            #     names_list.append(a)
-            #     if b['text'] == 1:
-            #         mark_plus.append(b['text'])
-            #         mark_minis.append(0)
-            #     else:
-            #         mark_plus.append(0)
-            #         mark_minis.append(b['text'])
-            # else:
-            #     names_list.append(a)
-            #     mark_minis.append(0)
-            #     mark_plus.append(0)
-            # date_list.append(date)
-            # names_groups.append(group_name)
 
         creating_csv().create_stat_df(date_list, names_list, names_groups, mark_plus, mark_minis)
 
