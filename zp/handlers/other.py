@@ -10,7 +10,10 @@ async def start(msg: types.Message):
 
 
 async def settings(msg: types.Message):
-    await bot.send_message(msg.chat.id, "что именно хотите? 💁‍♂️", reply_markup=conf_settings.markup_add_del)
+    if msg.from_user.id == 5295520075:
+        await bot.send_message(msg.chat.id, "что именно хотите? 💁‍♂️", reply_markup=conf_settings.markup_add_del)
+    else:
+        await msg.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
 
 
 # Выход из состояний где бы не находились

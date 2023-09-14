@@ -1,17 +1,17 @@
-
 from aiogram import types, Dispatcher
-from zp.create_bot import bot, dp
-from zp.keyboards import conf_settings, other_kb, mk_confirm
+from zp.create_bot import bot
+from zp.keyboards import other_kb
 
 
 async def file_excel_loader(message : types.Message):
     'для отправки файла excel'
-    try:
-        await message.reply_document(open('excel/write_only.xlsx', 'rb'), reply_markup=other_kb.start_kb)
-    except FileNotFoundError as ex:
-        await bot.send_message(message.chat.id, "Файл еще не создан!")
-
+    if message.from_user.id == 5295520075:
+        try:
+            await message.reply_document(open('../zp/data_files/zp_excel.xlsx', 'rb'), reply_markup=other_kb.start_kb)
+        except FileNotFoundError as ex:
+            await bot.send_message(message.chat.id, "Файл еще не создан!")
+    else:
+        await message.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
 
 def register_handlers_excel(dp: Dispatcher):
     dp.register_message_handler(file_excel_loader, text='Получить отчет! 📄')
-

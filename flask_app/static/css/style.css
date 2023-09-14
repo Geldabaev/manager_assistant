@@ -1,0 +1,17 @@
+h1 {
+    border: 4px blueviolet double;
+    border-radius: 40px;
+}
+
+legend {
+    text-align: center;
+}
+
+fieldset {
+    border-color: blueviolet;
+    background-color: aliceblue;
+}
+
+img {
+   margin: 50px;
+}

@@ -18,26 +18,32 @@ class FSMAddedGroup(StatesGroup):
 
 
 async def start_fsm(msg: types.Message):
-    # if msg.from_user.id == 5295520075:
-    await FSMAddedGroup.name_group.set()
-    await msg.answer("Введите название группы", reply_markup=other_kb.cancel_mk)
-    await FSMAddedGroup.next()
+    if msg.from_user.id == 5295520075:
+        await FSMAddedGroup.name_group.set()
+        await msg.answer("Введите название группы", reply_markup=other_kb.cancel_mk)
+        await FSMAddedGroup.next()
+    else:
+        await msg.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
 
 
 async def name_group_save(msg: types.Message, state: FSMContext):
-    # if msg.from_user.id == 5295520075:
-    await state.update_data(name_group=msg.text)  # сохраняем в озу
-    await bot.send_message(msg.chat.id, "Подтвердите", reply_markup=mk_confirm)
-    await FSMAddedGroup.next()
+    if msg.from_user.id == 5295520075:
+        await state.update_data(name_group=msg.text)  # сохраняем в озу
+        await bot.send_message(msg.chat.id, "Подтвердите", reply_markup=mk_confirm)
+        await FSMAddedGroup.next()
+    else:
+        await msg.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
 
 
 async def save_group_end(msg: types.Message, state: FSMContext):
-    # if msg.from_user.id == 5295520075:
-    if msg.text == 'Подтвердить':
-        data = await state.get_data()  # достаем из озу
-        await inserting_data_db(data)
-        await bot.send_message(msg.chat.id, "Сохранено", reply_markup=other_kb.start_kb)
-        await state.finish()
+    if msg.from_user.id == 5295520075:
+        if msg.text == 'Подтвердить':
+            data = await state.get_data()  # достаем из озу
+            await inserting_data_db(data)
+            await bot.send_message(msg.chat.id, "Сохранено", reply_markup=other_kb.start_kb)
+            await state.finish()
+    else:
+        await msg.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
 
 
 def register_handlers_groups_added(dp: Dispatcher):

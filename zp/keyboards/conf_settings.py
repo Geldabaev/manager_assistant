@@ -1,9 +1,10 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from .other_kb import cancel_kb
 
 btn_add_del_group = [KeyboardButton('Добавить группу 👥'), KeyboardButton('Удалить группу 🛑')]
 btn_add_del_student = [KeyboardButton('Добавить ученика 👤'), KeyboardButton('Удалить ученика 🗑')]
 markup_add_del = ReplyKeyboardMarkup(resize_keyboard=True)
-markup_add_del.row(*btn_add_del_group).row(*btn_add_del_student)
+markup_add_del.row(*btn_add_del_group).row(*btn_add_del_student).add(cancel_kb)
 
 
 kb_confirm = KeyboardButton("Подтвердить")

@@ -14,34 +14,41 @@ class FSMAddedStudent(StatesGroup):
 
 
 async def start_fsm_student(msg: types.Message):
-    # if msg.from_user.id == 5295520075:
-    read = await read_sql('my_groups')
-    if read:
-        kb_list = []
-        for ret in read:
-            kb_list.append(KeyboardButton(ret[1]))
-        await bot.send_message(msg.from_user.id, "Выберите нужную группу",
-                               reply_markup=ReplyKeyboardMarkup(resize_keyboard=True).add(*kb_list).add(other_kb.cancel_kb))
-        await FSMAddedStudent.name_student_to_group.set()
+    if msg.from_user.id == 5295520075:
+        read = await read_sql('my_groups')
+        if read:
+            kb_list = []
+            for ret in read:
+                kb_list.append(KeyboardButton(ret[1]))
+            await bot.send_message(msg.from_user.id, "Выберите нужную группу",
+                                   reply_markup=ReplyKeyboardMarkup(resize_keyboard=True).add(*kb_list).add(other_kb.cancel_kb))
+            await FSMAddedStudent.name_student_to_group.set()
 
+        else:
+            await bot.send_message(msg.from_user.id, "У вас нет ни одной группы для добавления ученика",
+                                   reply_markup=other_kb.start_kb)
     else:
-        await bot.send_message(msg.from_user.id, "У вас нет ни одной группы для добавления ученика",
-                               reply_markup=other_kb.start_kb)
+        await msg.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
 
 
 async def name_student_save(msg: types.Message, state: FSMContext):
-    await state.update_data(name_group=msg.text)  # сохраняем в озу
-    await msg.answer("Введите Ф.И. ученика", reply_markup=ReplyKeyboardRemove())
-    await FSMAddedStudent.next()
+    if msg.from_user.id == 5295520075:
+        await state.update_data(name_group=msg.text)  # сохраняем в озу
+        await msg.answer("Введите Ф.И. ученика", reply_markup=ReplyKeyboardRemove())
+        await FSMAddedStudent.next()
+    else:
+        await msg.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
 
 
 async def save_student_end(msg: types.Message, state: FSMContext):
-    # if msg.from_user.id == 5295520075:
-    await state.update_data(name_student=msg.text)
-    data = await state.get_data()  # достаем из озу
-    await sql_added_student(data['name_group'], data['name_student'])
-    await bot.send_message(msg.chat.id, 'Ученик добавлен в группу', reply_markup=other_kb.start_kb)
-    await state.finish()
+    if msg.from_user.id == 5295520075:
+        await state.update_data(name_student=msg.text)
+        data = await state.get_data()  # достаем из озу
+        await sql_added_student(data['name_group'], data['name_student'])
+        await bot.send_message(msg.chat.id, 'Ученик добавлен в группу', reply_markup=other_kb.start_kb)
+        await state.finish()
+    else:
+        await msg.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
 
 
 def register_handlers_student_added(dp: Dispatcher):

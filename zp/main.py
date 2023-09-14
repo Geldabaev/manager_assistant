@@ -1,4 +1,5 @@
 from aiogram.utils import executor
+
 from create_bot import dp
 
 
@@ -7,6 +8,7 @@ async def on_startup(_):
 
 
 from zp.handlers import *
+from zp.statistics.handlers_statistics import *
 
 register_handlers_other(dp)
 register_handlers_student_del(dp)
@@ -16,6 +18,7 @@ register_handlers_groups_added(dp)
 register_handlers_go(dp)
 register_handlers_output_students(dp)
 register_handlers_excel(dp)
+register_handlers_stat(dp)
 
 
 if __name__ == '__main__':

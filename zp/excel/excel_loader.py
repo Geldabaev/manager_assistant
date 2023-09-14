@@ -15,7 +15,7 @@ def create_excel():
 
     try:
         # если файл есть дописываем
-        wb = openpyxl.load_workbook("excel/write_only.xlsx")
+        wb = openpyxl.load_workbook("../zp/data_files/zp_excel.xlsx")
     except:
         # если нет создаем
         wb = openpyxl.Workbook()
@@ -26,7 +26,7 @@ def create_excel():
 
             # создаем новый лист
             ws = wb.create_sheet(f'{cur_date}', 0)
-            wb.save('excel/write_only.xlsx')
+            wb.save('../zp/data_files/zp_excel.xlsx')
 
 
     # active берет первый лист
@@ -34,7 +34,7 @@ def create_excel():
 
     if sheet['A1'].value is None:  # Пишем заголовок если нет
         sheet['A1'].value = "Группы"
-        wb.save('excel/write_only.xlsx')
+        wb.save('../zp/data_files/zp_excel.xlsx')
 
     return cur_date
 
@@ -42,7 +42,7 @@ def create_excel():
 def search_group(name_group):
     'поиск группы, если есть запись'
     try:
-        wb = openpyxl.open("excel/write_only.xlsx")
+        wb = openpyxl.open("../zp/data_files/zp_excel.xlsx")
     except:
         print('Записи ещё нет!')
 
@@ -66,7 +66,7 @@ def write_group(sheet, name_group, wb):
         # Вставляем название группы в пустое поле
         if sheet[f'A{row}'].value is None:
             sheet[f'A{row}'].value = name_group
-            wb.save('excel/write_only.xlsx')
+            wb.save('../zp/data_files/zp_excel.xlsx')
             return row  # возвращаем местоположение группы
         row += 1
 
@@ -85,7 +85,7 @@ def werite_count_students(sheet, row, count_, wb, cur_data):
             sheet[f'{i}{row}'].value = count_
             break
 
-    wb.save('excel/write_only.xlsx')
+    wb.save('../zp/data_files/zp_excel.xlsx')
 
 
 def main_exel(name_group, count_):
@@ -99,7 +99,7 @@ def main_exel(name_group, count_):
 
 
 def calculate_salary():
-    df = pd.read_excel("../zp/excel/write_only.xlsx")
+    df = pd.read_excel("../zp/data_files/zp_excel.xlsx")
     df.fillna(0, inplace=True)
     zp = 0
     for i in df.dropna().values:

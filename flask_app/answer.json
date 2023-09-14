@@ -1,0 +1,21 @@
+{
+  "update_id": 692762763,
+  "message": {
+    "message_id": 8922,
+    "from": {
+      "id": 5295520075,
+      "is_bot": false,
+      "first_name": "Yunus",
+      "username": "Runas_user",
+      "language_code": "ru"
+    },
+    "chat": {
+      "id": 5295520075,
+      "first_name": "Yunus",
+      "username": "Runas_user",
+      "type": "private"
+    },
+    "date": 1691652474,
+    "text": "bit"
+  }
+}
