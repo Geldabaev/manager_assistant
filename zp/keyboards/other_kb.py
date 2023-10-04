@@ -74,12 +74,13 @@ ready_mk_stat.add(end_kb_stat).add(cancel_kb)
 
 
 mk_all_or_group_stat = InlineKeyboardMarkup(row_width=2)
-kb_stats = [InlineKeyboardButton(text="Общая статистика 📈", web_app=WebAppInfo(url=f"https://ca10-2a03-d000-1581-dbd8-df71-ea37-2d98-fa78.ngrok-free.app/reg/other_groups")), InlineKeyboardButton(text="Статистика группы 📉", callback_data="stat_group")]
-mk_all_or_group_stat.row(*kb_stats).add(kb_zp)
+kb_stats = [InlineKeyboardButton(text="Общая статистика 📈", web_app=WebAppInfo(url=f"https://2187-2a03-d000-1481-f3f1-f6c9-2e26-e357-e2a3.ngrok-free.app/reg/other_groups")), InlineKeyboardButton(text="Статистика группы 📉", callback_data="stat_group")]
+mk_all_or_group_stat.row(*kb_stats).add(InlineKeyboardButton(text="Общая статистика png", callback_data="jpg_statistic")).add(kb_zp)
 
 
 def mk_group_stat(name_group):
     mk_group_one = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    kb_group_one = KeyboardButton("Открыть статистику", web_app=WebAppInfo(url=f"https://ca10-2a03-d000-1581-dbd8-df71-ea37-2d98-fa78.ngrok-free.app/reg/{name_group}"))
-    mk_group_one.add(kb_group_one).add(cancel_kb)
+    kb_group_one = KeyboardButton("Открыть статистику", web_app=WebAppInfo(url=f"https://2187-2a03-d000-1481-f3f1-f6c9-2e26-e357-e2a3.ngrok-free.app/reg/{name_group}"))
+    kb_image = KeyboardButton("Статистика группы png")
+    mk_group_one.add(kb_group_one).add(kb_image).add(cancel_kb)
     return mk_group_one

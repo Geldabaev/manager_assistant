@@ -1,3 +1,5 @@
+import string
+
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font, Side
@@ -99,26 +101,60 @@ def main_exel(name_group, count_):
 
 
 def calculate_salary():
+    # формируем зп
     df = pd.read_excel("../zp/data_files/zp_excel.xlsx")
     df.fillna(0, inplace=True)
     zp = 0
     for i in df.dropna().values:
-        if not i[0].startswith("Django"):
-            for a in i[1:]:
-                if a > 0:
-                    if a <= 5:
-                        zp += 500
-                    else:
-                        zp += a * 100
-        else:
+        if all(list([{f}.intersection(i[0].translate(str.maketrans("", "", string.punctuation)).lower().split()) for f in ["онлайн", "django", "инд"]])):
+            print(i[0], "онлайн", "django", "инд")
+            print("malik")
+            for number in i[1:]:
+                if number:
+                    zp += 700
+
+        elif all(list([{f}.intersection(i[0].translate(str.maketrans("", "", string.punctuation)).lower().split()) for f in ["онлайн", "инд"]])):  # если в имени группы есть слово онлайн и инд
+            print(i[0], "онлайн", "инд")
+            for number in i[1:]:
+                if number:
+                    zp += 300
+
+        elif all(list([{f}.intersection(i[0].translate(str.maketrans("", "", string.punctuation)).lower().split()) for f in ["django", "инд"]])):
+            print(i[0], "django", "инд")
+            for number in i[1:]:
+                if number:
+                    zp += 1000
+
+        elif all(list([{"онлайн"}.intersection(i[0].translate(str.maketrans("", "", string.punctuation)).lower().split())])):  # если в имени группы есть слово онлайн
+            print(i[0], "онлайн")
+            '''если онлайн группа'''
+            for studen_count in i[1:]:
+                if studen_count > 1:
+                    zp += 300 + (100 * studen_count)
+                else:
+                    zp += 300
+
+        elif all(list([{"django"}.intersection(i[0].translate(str.maketrans("", "", string.punctuation)).lower().split())])): # если в имени группы есть слово django
+            print(i[0], "django")
             for a in i[1:]:
                 if a > 0:
                     if a <= 5:
                         zp += 1000
                     else:
                         zp += a * 200
+
+        elif all(list([{"амади"}.intersection(i[0].translate(str.maketrans("", "", string.punctuation)).lower().split())])): # если в имени группы есть слово django
+            print(i[0], "амади")
+            for number in i[1:]:
+                if number:
+                    zp += 875
+
+        else:  # оффлан, не django
+            print(i[0], "оффлайн")
+            for a in i[1:]:
+                if a > 0:
+                    if a <= 5:  # если меньше 5, или инд.
+                        zp += 500
+                    else:
+                        zp += a * 100
     return zp
-
-
-
-# main_exel("Габатаевы группа", 1)

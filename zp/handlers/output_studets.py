@@ -1,4 +1,5 @@
 import json
+import os
 
 from aiogram import types, Dispatcher
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
@@ -8,13 +9,20 @@ from zp.data_base import join_table
 from ..models import edit_status_student, edit_status_mark
 from ..excel import main_exel
 from datetime import datetime
-from ..statistics.models import creating_csv
+from ..statistics.models import creating_csv, write_payment_time
 from zp.diagrams import res_save_plot
+
+
+class CountStudents:
+    students_names = {}
+
+
+students_names_status = CountStudents()
 
 
 id_msg_del: list = []
 async def output_students_group(callback_query: types.CallbackQuery):
-    global msg_edit, name_group, count_student
+    global msg_edit, name_group, count_student, copy_msg
     if callback_query.from_user.id == 5295520075:
         count_student = ""  # если статус студента не меняли, во второй урок, то сохранится данные из первого урока
         # чтобы этого избежать очищаем количество, и берем количество учеников прямо из сообщения, и не из этого (count_student)
@@ -25,8 +33,10 @@ async def output_students_group(callback_query: types.CallbackQuery):
                 id_msg = await bot.send_message(callback_query.from_user.id, text=ret[0].title() + "\nСтатус: присутствует ✅", reply_markup=InlineKeyboardMarkup().add(
                     InlineKeyboardButton(text=f'Отсутствует {ret[0].title()} ✖', callback_data=f"status {ret[0].title()}")))
                 msg_edit[ret[0].title()] = id_msg
+                students_names_status.students_names[ret[0]] = 1
             name_group = ret[1]
             await callback_query.answer("Выбрана группа " + name_group)  # вплывающая подсказка
+
             await bot.send_message(callback_query.from_user.id, f"Ученики группы {name_group} ☝", reply_markup=other_kb.ready_mk)
         else:
             await bot.send_message(callback_query.from_user.id, "У вас нет ни одного ученика в этой группе", reply_markup=ReplyKeyboardRemove())
@@ -41,8 +51,8 @@ async def absent_attend_student(clb: types.CallbackQuery):
         "Вывести для добавлении или отсутвовании"
         "рекция на кнопки отсутсвует (присутсвует)"
         txt_msg = clb.message.text.split(":")[1].strip()
-        txt_clb = clb.data.replace("status", "").strip().title()  # берем текст с кнопки, убирая лишнее
-        count_student, data_sudents = await edit_status_student(msg_edit, txt_clb, txt_msg, len(msg_edit))
+        txt_clb = clb.data.replace("status", "").strip().title()  # берем текст с кнопки, убирая лишнее (имя студента)
+        count_student, data_sudents = await edit_status_student(msg_edit, txt_clb, txt_msg, len(msg_edit), students_names_status)
     else:
         await clb.message.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
 
@@ -54,6 +64,7 @@ async def ready_to_write_exel(msg: types.callback_query):
         names_list = []
         status_list = []
         groups_list = []
+        print(students_names_status.students_names, "<<<")
         try:
             if not count_student: # если статус студента не меняли
                 raise NameError
@@ -62,31 +73,35 @@ async def ready_to_write_exel(msg: types.callback_query):
         except NameError:  # если статус студента не меняли
             count_student = len(msg_edit)
             main_exel(name_group, count_student)
-            count_student = ''  # очищаем, чтобы не было в следющий раз как будно мы не меняли статус, хотя и меняли
         finally:
             date = datetime.now().strftime("%d_%m_%Y")
             creating_csv().create_csv_headers()
-            if data_sudents:  # был ли статус изменен
-                for name, status in data_sudents.items():
-                    if isinstance(status['text'], str):
-                        if status['text'].split(":")[1].strip() == "присутствует ✅":
-                            data_sudents[name]['text'] = 1
-                for name, status in data_sudents.items():
-                    names_list.append(name)
-                    status_list.append(status['text'])
-                    date_list.append(date)
-                    groups_list.append(name_group)
-            else:  # если статус не был изменен
-                for name, status in msg_edit.items():
-                    if isinstance(status['text'], str):
-                        if status['text'].split(":")[1].strip() == "присутствует ✅":
-                            msg_edit[name]['text'] = 1
-                for name, status in msg_edit.items():
-                    date_list.append(date)
-                    groups_list.append(name_group)
-                    names_list.append(name)
-                    status_list.append(status['text'])
+            for name, status in students_names_status.students_names.items():
+                names_list.append(name)
+                status_list.append(status)
+                date_list.append(date)
+                groups_list.append(name_group)
+
+            # if data_sudents:  # был ли статус изменен
+            #     for name, status in data_sudents.items():
+            #         if isinstance(status['text'], str):
+            #             if status['text'].split(":")[1].strip() == "присутствует ✅":
+            #                 data_sudents[name]['text'] = 1
+            #     for name, status in data_sudents.items():
+            #         names_list.append(name)
+            #         status_list.append(status['text'])
+            #         date_list.append(date)
+            #         groups_list.append(name_group)
+            # else:  # если статус не был изменен
+            #     for name, status in msg_edit.items():
+            #         if isinstance(status['text'], str):
+            #             if status['text'].split(":")[1].strip() == "присутствует ✅":
+            #                 msg_edit[name]['text'] = 1
+            #     for name, status in msg_edit.items():
+            #         groups_list.append(name_group)
             creating_csv().create_df(date_list, names_list, groups_list, status_list)
+            write_payment_time(names_list)
+
         await msg.answer("Данные сохранены!", reply_markup=other_kb.start_kb)
     else:
         await msg.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
@@ -111,6 +126,7 @@ async def output_students_group_mark(callback_query: types.CallbackQuery):
     else:
         await callback_query.message.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
 
+
 async def encourage_reprimand_student(clb: types.CallbackQuery):
     "Вывести для поощерении или замечании"
     global count_student, data_sudents_marks
@@ -134,7 +150,6 @@ async def ready_to_write_statistics(msg: types.callback_query):
         names_groups = []
         date_list = []
         date = datetime.now().strftime("%d_%m_%Y")
-        print(json_data, "json")
         for dicts in json_data:
             """
             За поощерение 1, замечание -0.5.
@@ -162,6 +177,7 @@ async def ready_to_write_statistics(msg: types.callback_query):
         creating_csv().create_stat_df(date_list, names_list, names_groups, mark_plus, mark_minis)
 
         await msg.answer("Данные сохранены!", reply_markup=other_kb.start_kb)
+        os.remove('data_files/json_status_students.json')  # удаляем json после создания из него df
     else:
         await msg.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
 

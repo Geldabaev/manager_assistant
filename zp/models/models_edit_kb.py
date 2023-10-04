@@ -1,5 +1,4 @@
 import copy
-from pprint import pprint
 import json
 import os
 
@@ -35,19 +34,23 @@ async def edit_msg_marks(msg: types.Message, clb, webapp=False):
 
 
 counting = 0
-async def edit_status_student(msg_edit: types.Message, txt_clb, txt_msg, count_student):
+async def edit_status_student(msg_edit: types.Message, txt_clb, txt_msg, count_student, students_names_status):
     global counting
+
     data_sudents = copy.deepcopy(msg_edit)  # копируем, чтобы менять данные где есть все данные о студентах, чтобы потом всё сохранить с актуальными данными
-    # меняет статус на противополжный тому что есть
+
+
     if txt_msg == 'присутствует ✅':
         await msg_edit[txt_clb].edit_text(msg_edit[txt_clb].text.replace("присутствует ✅", "отсутствует ❌"), reply_markup=mk_status_attend(txt_clb))
         counting += 1
         data_sudents[txt_clb]['text'] = 0
+        students_names_status.students_names[txt_clb] = 0
 
     else:
         await msg_edit[txt_clb].edit_text(msg_edit[txt_clb].text.replace("отсутствует ❌", "присутствует ✅"), reply_markup=mk_status_absent(txt_clb))
         counting -= 1
         data_sudents[txt_clb]['text'] = 1
+        students_names_status.students_names[txt_clb] = 1
     return count_student - counting, data_sudents
 
 
@@ -90,6 +93,7 @@ async def edit_status_mark(msg_edit_mark: types.Message, txt_clb, if_copy=stat_c
             with open("data_files/json_status_students.json", "w", encoding='utf-8') as json_file:
                 json_file.write(json.dumps([{txt_clb: 1}], indent=2, ensure_ascii=False))
         else:
+            txt_clb = txt_clb.replace("status_mark minus ", "")
             txt_clb = txt_clb.replace("status_mark minus ", "")
             await msg_edit_mark[txt_clb].edit_text(msg_edit_mark[txt_clb].text.replace("🟡", "🔴"))
 
