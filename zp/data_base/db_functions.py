@@ -1,7 +1,4 @@
 import sqlite3 as sq
-from sqlite3 import OperationalError
-from zp.create_bot import dp, bot
-from aiogram import types
 
 
 async def connection():
@@ -64,5 +61,4 @@ async def read_sql_fk(id_group):
 
 async def join_table(id_fk):
     sql_con_cur = await connection()
-    print(id_fk, "wwwwwwwwww")
     return sql_con_cur[1].execute(f"SELECT students.name_student, my_groups.name_group FROM students INNER JOIN my_groups ON my_groups.id_group=students.fk_students AND my_groups.id_group = {id_fk}").fetchall()

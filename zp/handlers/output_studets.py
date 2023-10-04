@@ -10,7 +10,6 @@ from ..models import edit_status_student, edit_status_mark
 from ..excel import main_exel
 from datetime import datetime
 from ..statistics.models import creating_csv, write_payment_time
-from zp.diagrams import res_save_plot
 
 
 class CountStudents:
@@ -64,7 +63,6 @@ async def ready_to_write_exel(msg: types.callback_query):
         names_list = []
         status_list = []
         groups_list = []
-        print(students_names_status.students_names, "<<<")
         try:
             if not count_student: # если статус студента не меняли
                 raise NameError
@@ -82,27 +80,11 @@ async def ready_to_write_exel(msg: types.callback_query):
                 date_list.append(date)
                 groups_list.append(name_group)
 
-            # if data_sudents:  # был ли статус изменен
-            #     for name, status in data_sudents.items():
-            #         if isinstance(status['text'], str):
-            #             if status['text'].split(":")[1].strip() == "присутствует ✅":
-            #                 data_sudents[name]['text'] = 1
-            #     for name, status in data_sudents.items():
-            #         names_list.append(name)
-            #         status_list.append(status['text'])
-            #         date_list.append(date)
-            #         groups_list.append(name_group)
-            # else:  # если статус не был изменен
-            #     for name, status in msg_edit.items():
-            #         if isinstance(status['text'], str):
-            #             if status['text'].split(":")[1].strip() == "присутствует ✅":
-            #                 msg_edit[name]['text'] = 1
-            #     for name, status in msg_edit.items():
-            #         groups_list.append(name_group)
             creating_csv().create_df(date_list, names_list, groups_list, status_list)
             write_payment_time(names_list)
 
         await msg.answer("Данные сохранены!", reply_markup=other_kb.start_kb)
+        students_names_status.students_names.clear() # очищаем список от студенотов
     else:
         await msg.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
 
@@ -133,9 +115,7 @@ async def encourage_reprimand_student(clb: types.CallbackQuery):
     if clb.from_user.id == 5295520075:
         "рекция на кнопки замечание и поощерение"
         txt_msg = clb.message.text.strip()
-        # txt_clb = clb.data.replace("status_mark", "").strip().title()  # берем текст с кнопки, убирая лишнее
         txt_clb = clb.data # берем текст с кнопки, убирая лишнее
-        # data_sudents_marks = await edit_status_mark(msg_edit_mark, txt_clb)
         await edit_status_mark(msg_edit_mark, txt_clb)
     else:
         await clb.message.answer("Доступ запрещен!", reply_markup=other_kb.start_kb)
